@@ -37,7 +37,7 @@
     <Manfictors></Manfictors>
   </div>
 </template>
-<script>
+<script>import { mapState } from "vuex";
 import addData from "../../config/add-user-data";
 import Manfictors from "../../components/user/manfictor";
 
@@ -71,6 +71,9 @@ export default {
   mounted() {
     this.userData = addData();
   },
+  computed: {
+    ...mapState(["manfictor"])
+  },
   methods: {
     handleSizeChange() {},
     handleCurrentChange() {},
@@ -79,7 +82,7 @@ export default {
       this.userData = addData();
       this.clicked = this.userData[index].role;
       this.userData[index].default = this.userData[index].icon;
-      // this.$store.state.manfictor = true;
+      this.$store.commit('triggerManfictor');
     }
   }
 };

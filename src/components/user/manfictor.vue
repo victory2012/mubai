@@ -1,5 +1,5 @@
 <template>
-  <el-dialog width="600px" title="创建生产企业管理员" :visible.sync="manfictor">
+  <el-dialog width="600px" title="创建生产企业管理员" @close="closedIt" :visible.sync="$store.state.manfictor">
     <el-form :model="adminForm" :rules="customerRules" ref="adminForm">
       <el-row :gutter="40">
         <el-col :span="12">
@@ -50,13 +50,14 @@
   </el-dialog>
 </template>
 
-<script>
+<script>// import { mapState } from "vuex";
+
 export default {
   data() {
     return {
       creatAdmin: true,
       adminForm: {},
-      manfictor: false,
+      // manfictor: true,
       natureOptions: [
         {
           label: "国内",
@@ -96,7 +97,7 @@ export default {
   methods: {
     resetAdmin(formName) {
       this.adminForm = {};
-      this.manfictor = false;
+      this.$store.commit('triggerManfictor');
       this.$refs[formName].resetFields();
     },
     submitAdmin(formName) {
@@ -108,6 +109,10 @@ export default {
           return false;
         }
       });
+    },
+    closedIt() {
+      console.log('it closed');
+      this.$store.commit('triggerManfictor');
     }
   }
 };

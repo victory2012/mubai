@@ -9,9 +9,9 @@
       </el-table-column>
       <el-table-column prop="batteryId" align="center" label="电池编号">
       </el-table-column>
-      <el-table-column prop="batteryGroup" align="center" label="电池组编号">
+      <el-table-column prop="batteryGroup" align="center" label="电池组编号" width="100">
       </el-table-column>
-      <el-table-column prop="content" align="center" label="告警内容" width="300">
+      <el-table-column prop="content" align="center" label="告警内容" width="200">
       </el-table-column>
       <el-table-column prop="hierarchy" align="center" label="告警层级" width="120">
       </el-table-column>

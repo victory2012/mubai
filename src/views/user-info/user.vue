@@ -9,7 +9,7 @@
           <div class="grid-content">
             <div class="sort-content">
               <p class="tips">用户名</p>
-              <p class="gridInput">{{userArr.userName}}</p>
+              <p class="gridInput">{{userArr.nickName}}</p>
               <!-- <el-input v-model="userArr.userName" disabled class="gridInput"></el-input> -->
             </div>
           </div>
@@ -18,7 +18,7 @@
           <div class="grid-content">
             <div class="sort-content">
               <p class="tips">账户身份</p>
-              <p class="gridInput">{{userArr.userRole}}</p>
+              <p class="gridInput">{{userArr.accountType}}</p>
               <!-- <el-input v-model="userArr.userRole" disabled class="gridInput"></el-input> -->
             </div>
           </div>
@@ -27,7 +27,7 @@
           <div class="grid-content">
             <div class="sort-content">
               <p class="tips">企业身份</p>
-              <p class="gridInput">{{userArr.enterpriseRole}}</p>
+              <p class="gridInput">{{userArr.layerName}}</p>
               <!-- <el-input v-model="userArr.enterpriseRole" disabled class="gridInput"></el-input> -->
             </div>
           </div>
@@ -40,7 +40,7 @@
           <div class="grid-content">
             <div class="sort-content">
               <p class="tips">企业名称</p>
-              <p class="gridInput">{{userArr.enterpriseName}}</p>
+              <p class="gridInput">{{userArr.companyName}}</p>
               <!-- <el-input v-model="userArr.enterpriseName" disabled class="gridInput"></el-input> -->
             </div>
           </div>
@@ -49,7 +49,7 @@
           <div class="grid-content">
             <div class="sort-content">
               <p class="tips">手机号码</p>
-              <p class="gridInput">{{userArr.phoneNumber}}</p>
+              <p class="gridInput">{{userArr.phone}}</p>
             </div>
           </div>
         </el-col>
@@ -57,7 +57,7 @@
           <div class="grid-content">
             <div class="sort-content">
               <p class="tips">邮箱</p>
-              <p class="gridInput">{{userArr.email}}</p>
+              <p class="gridInput">{{userArr.email || '暂无'}}</p>
             </div>
           </div>
         </el-col>
@@ -77,11 +77,14 @@
                 <el-form-item label="手机号码" prop="phoneNum">
                   <el-input size="small" v-model="ruleForm.phoneNum" type="tel" style="width:200px;"></el-input>
                 </el-form-item>
-                <!-- <el-form-item label="用户名" prop="userName">
-                  <el-input v-model="ruleForm.userName" style="width:200px;"></el-input>
-                </el-form-item> -->
+                <el-form-item label="用户名" prop="userName">
+                  <el-input size="small" v-model="ruleForm.userName" style="width:200px;"></el-input>
+                </el-form-item>
                 <el-form-item label="邮箱" prop="email">
                   <el-input size="small" v-model="ruleForm.email" style="width:200px;"></el-input>
+                </el-form-item>
+                <el-form-item label="密码" prop="password">
+                  <el-input size="small" type="password" v-model="ruleForm.password" style="width:200px;"></el-input>
                 </el-form-item>
                 <el-form-item>
                   <el-button size="small" type="primary" @click="submitForm('ruleForm')">确认</el-button>
@@ -96,18 +99,18 @@
   </div>
 </template>
 <script>
-// import { getUserInfo, changeUserInfo } from "../../api/index.js";
-// import { onTimeOut, onSuccess, onError } from "../../utils/callback"
+import utils from "../../utils/utils";
+
 export default {
   data() {
     return {
       userMsgBox: false,
-      userArr: [],
+      userArr: {},
       ruleForm: {},
       rules: {
-        email: [{ required: false, message: "请输入用户名", trigger: "blur" }],
+        // email: [{ required: false, message: "请输入用户名", trigger: "blur" }],
         phoneNum: [
-          { required: true, message: "请输入手机号码", trigger: "change" },
+          { required: false, message: "请输入手机号码", trigger: "change" },
           { pattern: /^1[3|4|5|7|8][0-9]\d{8}$/, message: "手机号格式错误" }
         ]
       }
@@ -128,15 +131,35 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          console.log('success');
+          console.log(this.ruleForm);
+          let userObj = {
+            email: this.ruleForm.email,
+            phone: this.ruleForm.phoneNum,
+            nickName: this.ruleForm.userName,
+            password: this.ruleForm.password
+          };
+          this.$axios.put("/user/info", userObj).then(res => {
+            console.log(res);
+          });
         } else {
           console.log("error submit!!");
           return false;
         }
       });
+    },
+    init() {
+      this.$axios.get("/user/current").then(res => {
+        console.log(res);
+        if (res.data.code === 0) {
+          this.userArr = res.data.data;
+          this.userArr.accountType = utils.accountType(this.userArr.type);
+        }
+      });
     }
   },
-  mounted() {}
+  mounted() {
+    this.init();
+  }
 };
 </script>
 <style lang="scss" scoped>
@@ -164,6 +187,7 @@ export default {
 .tips {
   color: #484848;
   font-size: 14px;
+  line-height: 24px;
 }
 .editorBtn {
   text-align: right;

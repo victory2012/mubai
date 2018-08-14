@@ -1,5 +1,5 @@
 <template>
-  <el-dialog width="600px" title="创建生产企业管理员" @close="closedIt" :visible.sync="manfictor">
+  <el-dialog width="600px" title="创建客户企业" @close="closedIt" :visible.sync="custom">
     <el-form :model="adminForm" :rules="customerRules" ref="adminForm">
       <el-row :gutter="40">
         <el-col :span="12">
@@ -25,16 +25,6 @@
           </el-form-item>
         </el-col>
       </el-row>
-      <el-row :gutter="40">
-        <el-col :span="12">
-          <el-form-item label="企业名称" prop="companyName">
-            <el-input v-model="adminForm.companyName" auto-complete="off"></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <p>{{typeId}}</p>
-        </el-col>
-      </el-row>
     </el-form>
     <div>
     </div>
@@ -56,17 +46,6 @@ export default {
     return {
       creatAdmin: true,
       adminForm: {},
-      // manfictor: true,
-      natureOptions: [
-        {
-          label: "国内",
-          value: "0"
-        },
-        {
-          label: "国际",
-          value: "1"
-        }
-      ],
       customerRules: {
         account: [
           { required: true, message: "请输入用户名", trigger: "change" },
@@ -83,21 +62,15 @@ export default {
             message: "手机号格式错误",
             trigger: "change"
           }
-        ],
-        enterpriseName: [
-          { required: true, message: "请输入企业名称", trigger: "change" }
-        ],
-        nature: [
-          { required: true, message: "请选择企业性质", trigger: "change" }
         ]
       }
     };
   },
   computed: {
     // ...mapGetters(['manfictor'])
-    manfictor: {
+    custom: {
       get: function() {
-        return this.$store.state.manfictor;
+        return this.$store.state.custom;
       },
       set: function() {}
     },
@@ -118,27 +91,7 @@ export default {
       console.log(this.typeId);
       this.$refs[formName].validate(valid => {
         if (valid) {
-          let params = {
-            account: this.adminForm.account,
-            password: this.adminForm.password,
-            phone: this.adminForm.phone,
-            email: this.adminForm.email,
-            companyName: this.adminForm.companyName,
-            isCreator: 1
-          };
-          console.log(this.adminForm);
-          // console.log("yes");
-          this.$axios.post("/company/manufacturer", params).then(res => {
-            console.log(res);
-            if (res.data && res.data.code === 0) {
-              this.$message({
-                type: "success",
-                message: "创建成功"
-              });
-              this.$emit("hasCreated", { value: true });
-              this.closedIt();
-            }
-          });
+          console.log("yes");
         } else {
           console.log("no");
           return false;
@@ -147,7 +100,7 @@ export default {
     },
     closedIt() {
       console.log("it closed");
-      this.$store.commit("triggerManfictor");
+      this.$store.commit("triggerCustom");
     }
   }
 };

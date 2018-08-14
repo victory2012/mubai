@@ -51,8 +51,16 @@ export default {
     handleCommand(command) {
       console.log(command);
       if (command === "loginout") {
-        localStorage.removeItem("loginData");
-        this.$router.push("/login");
+        this.$axios.post("/login/logout").then(res => {
+          console.log(res);
+          if (res.data.code === 0) {
+            this.$store.commit('removeStorage');
+            this.$store.commit('removeTokenStorage');
+            this.$router.push("/login");
+          } else {
+            this.$message.error(res.data.msg);
+          }
+        });
       }
       if (command === "userMsg") {
         this.$router.push("/user-info");
@@ -85,6 +93,9 @@ export default {
       overflow-x: hidden;
     }
   }
+}
+.el-menu {
+  width: 220px;
 }
 .el-scrollbar {
   .el-scrollbar__wrap {

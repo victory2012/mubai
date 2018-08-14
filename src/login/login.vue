@@ -7,7 +7,7 @@
       <div class="form">
         <el-tabs v-model="activeName" :stretch="true">
           <el-tab-pane label="账户密码登录" name="accPwd">
-            <el-form label-position="top" :rules="LoginRules" label-width="80px" :model="LoginForm">
+            <el-form label-position="top" :rules="LoginRules" ref="LoginForm" label-width="80px" :model="LoginForm">
               <el-form-item label="账号" prop="account">
                 <el-input v-model="LoginForm.account"></el-input>
               </el-form-item>
@@ -15,7 +15,7 @@
                 <el-input type="password" v-model="LoginForm.password"></el-input>
               </el-form-item>
               <el-form-item>
-                <button class="accpwsBtn">登录</button>
+                <button @click.stop.prevent="accountLogin('LoginForm')" class="accpwsBtn">登录</button>
               </el-form-item>
             </el-form>
           </el-tab-pane>
@@ -39,6 +39,8 @@
   </div>
 </template>
 <script>
+// import http from "../api/";
+
 export default {
   data() {
     return {
@@ -53,33 +55,50 @@ export default {
           { required: true, message: "请输入短信验证码", trigger: "blur" }
         ]
       },
-      LoginForm: {
-        account: "",
-        password: ""
-      },
+      LoginForm: {},
       LoginRules: {
         account: [{ required: true, message: "请输入账号", trigger: "blur" }],
         password: [{ required: true, message: "请输入密码", trigger: "blur" }]
       }
     };
+  },
+  methods: {
+    accountLogin(LoginForm) {
+      this.$refs[LoginForm].validate(valid => {
+        if (valid) {
+          let person = {
+            account: this.LoginForm.account,
+            password: this.LoginForm.password
+          };
+          this.$axios.post(`/login`, person).then(res => {
+            console.log(res);
+            if (res.data && res.data.code === 0) {
+              this.$store.commit('setStorage', JSON.stringify(res.data));
+              this.$store.commit('setTokenStorage', res.headers.token);
+              this.$router.push("/battery");
+            }
+          });
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
+      });
+    }
   }
 };
 </script>
 <style lang="scss" scoped>
 .login {
-  padding-top: 110px;
-  padding-right: 100px;
-  // display: flex;
-  // font-size: 0;
+  height: 100%;
+  padding: 120px;
+  min-width: 1314px;
   overflow: hidden;
-  min-width: 1190px;
-  overflow: hidden;
-
+  box-sizing: border-box;
   .img {
     float: left;
     // flex: 1;
     width: 65%;
-    height: 750px;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -93,7 +112,7 @@ export default {
     // flex: 0 0 400px;
     width: 35%;
     min-width: 375px;
-    height: 750px;
+    height: 100%;
     background: rgba(113, 191, 219, 0.2);
     border-radius: 10px;
     .form {
@@ -104,7 +123,7 @@ export default {
       margin: 120px auto;
       .smsCode {
         .el-input {
-          width: 65%;
+          width: 62%;
         }
         .getSms {
           float: right;

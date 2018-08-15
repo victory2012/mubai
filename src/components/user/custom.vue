@@ -53,7 +53,7 @@ export default {
         ],
         password: [
           { required: true, message: "请输入密码", trigger: "change" },
-          { min: 6, message: "密码至少6位", trigger: "change" }
+          { min: 3, message: "密码至少3位", trigger: "change" }
         ],
         phone: [
           { required: true, message: "请输入手机号码", trigger: "change" },
@@ -85,22 +85,61 @@ export default {
     resetAdmin(formName) {
       this.$refs[formName].resetFields();
       this.adminForm = {};
-      // this.$store.commit("triggerManfictor");
     },
     submitAdmin(formName) {
       console.log(this.typeId);
       this.$refs[formName].validate(valid => {
         if (valid) {
           console.log("yes");
+          if (this.typeId === "3") {
+            let params = {
+              account: this.adminForm.account,
+              password: this.adminForm.password,
+              phone: this.adminForm.phone,
+              email: this.adminForm.email,
+              isCreator: 0
+            };
+            this.$axios.post("/user", params).then(res => {
+              console.log(res);
+              if (res.data && res.data.code === 0) {
+                this.$message({
+                  type: "success",
+                  message: "创建成功"
+                });
+                this.$emit("hasCreated", { value: true });
+                this.$store.state.custom = false;
+              }
+            });
+          }
+          if (this.typeId === "4") {
+            let params = {
+              account: this.adminForm.account,
+              password: this.adminForm.password,
+              phone: this.adminForm.phone,
+              email: this.adminForm.email,
+              isCreator: 0
+            };
+            this.$axios.post("/user", params).then(res => {
+              console.log(res);
+              if (res.data && res.data.code === 0) {
+                this.$message({
+                  type: "success",
+                  message: "创建成功"
+                });
+                this.$emit("hasCreated", { value: true });
+                this.$store.state.custom = false;
+              }
+            });
+          }
         } else {
-          console.log("no");
           return false;
         }
       });
     },
     closedIt() {
       console.log("it closed");
-      this.$store.commit("triggerCustom");
+      this.resetAdmin("adminForm");
+      this.$store.state.custom = false;
     }
   }
 };

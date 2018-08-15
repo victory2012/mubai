@@ -1,7 +1,7 @@
 <template>
   <div class="userMsg">
     <div class="editorBtn">
-      <el-button size="small" type="primary" @click="doEditor" class="editorContent">编辑</el-button>
+      <el-button size="small" type="primary" @click="userMsgBox=true" class="editorContent">编辑</el-button>
     </div>
     <div class="center">
       <el-row type="flex" class="row-bg" justify="space-around">
@@ -57,45 +57,29 @@
           <div class="grid-content">
             <div class="sort-content">
               <p class="tips">邮箱</p>
-              <p class="gridInput">{{userArr.email || '暂无'}}</p>
+              <p class="gridInput">{{userArr.email}}</p>
             </div>
           </div>
         </el-col>
       </el-row>
     </div>
-    <div>
-      <transition name="el-fade-in-linear">
-        <div v-show="userMsgBox" class="transition-box">
-          <div class="box">
-            <div class="box-head">
-              <h3>个人信息编辑</h3>
-              <i @click="closeMsgBox('ruleForm')" class="el-icon-close"></i>
-            </div>
-            <div class="formWarrp">
-              <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="210px" class="demo-ruleForm">
-
-                <el-form-item label="手机号码" prop="phoneNum">
-                  <el-input size="small" v-model="ruleForm.phoneNum" type="tel" style="width:200px;"></el-input>
-                </el-form-item>
-                <el-form-item label="用户名" prop="userName">
-                  <el-input size="small" v-model="ruleForm.userName" style="width:200px;"></el-input>
-                </el-form-item>
-                <el-form-item label="邮箱" prop="email">
-                  <el-input size="small" v-model="ruleForm.email" style="width:200px;"></el-input>
-                </el-form-item>
-                <el-form-item label="密码" prop="password">
-                  <el-input size="small" type="password" v-model="ruleForm.password" style="width:200px;"></el-input>
-                </el-form-item>
-                <el-form-item>
-                  <el-button size="small" type="primary" @click="submitForm('ruleForm')">确认</el-button>
-                  <el-button size="small" @click="resetForm('ruleForm')">取消</el-button>
-                </el-form-item>
-              </el-form>
-            </div>
-          </div>
-        </div>
-      </transition>
-    </div>
+    <el-dialog width="600px" title="编辑用户信息" @close="closeIt" :visible.sync="userMsgBox">
+      <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="210px" class="demo-ruleForm">
+        <el-form-item label="手机号码" prop="phoneNum">
+          <el-input size="small" v-model="ruleForm.phoneNum" type="tel" style="width:200px;"></el-input>
+        </el-form-item>
+        <el-form-item label="用户名" prop="userName">
+          <el-input size="small" v-model="ruleForm.userName" style="width:200px;"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input size="small" v-model="ruleForm.email" style="width:200px;"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button size="small" type="primary" @click="submitForm('ruleForm')">确认</el-button>
+        <el-button size="small" @click="resetForm('ruleForm')">取消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -109,16 +93,16 @@ export default {
       ruleForm: {},
       rules: {
         // email: [{ required: false, message: "请输入用户名", trigger: "blur" }],
-        phoneNum: [
-          { required: false, message: "请输入手机号码", trigger: "change" },
-          { pattern: /^1[3|4|5|7|8][0-9]\d{8}$/, message: "手机号格式错误" }
-        ]
+        // phoneNum: [
+        //   // { required: false, message: "请输入手机号码", trigger: "change" },
+        //   { pattern: /^1[3|4|5|7|8][0-9]\d{8}$/, message: "手机号格式错误" }
+        // ]
       }
     };
   },
   methods: {
-    doEditor() {
-      this.userMsgBox = true;
+    closeIt() {
+      console.log("closeIt");
     },
     closeMsgBox(formName) {
       this.userMsgBox = false;
@@ -132,15 +116,36 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
           console.log(this.ruleForm);
-          let userObj = {
-            email: this.ruleForm.email,
-            phone: this.ruleForm.phoneNum,
-            nickName: this.ruleForm.userName,
-            password: this.ruleForm.password
-          };
-          this.$axios.put("/user/info", userObj).then(res => {
-            console.log(res);
-          });
+          console.log(this.userArr);
+          let userObj = {};
+          if (this.ruleForm.phoneNum !== this.userArr.phone) {
+            userObj.phone = this.ruleForm.phoneNum;
+          }
+          if (this.ruleForm.userName !== this.userArr.nickName) {
+            userObj.nickName = this.ruleForm.userName;
+          }
+          if (this.ruleForm.email !== this.userArr.email) {
+            userObj.email = this.ruleForm.email;
+          }
+          console.log(userObj);
+          if (JSON.stringify(userObj) !== "{}") {
+            this.$axios.put("/user/info", userObj).then(res => {
+              console.log(res);
+              if (res.data && res.data.code === 0) {
+                this.$message({
+                  type: "success",
+                  message: "修改成功"
+                });
+                this.init();
+                this.closeMsgBox('ruleForm');
+              }
+            });
+          }
+          // let userObj = {
+          //   email: this.ruleForm.email,
+          //   phone: this.ruleForm.phoneNum,
+          //   nickName: this.ruleForm.userName
+          // };
         } else {
           console.log("error submit!!");
           return false;
@@ -150,9 +155,13 @@ export default {
     init() {
       this.$axios.get("/user/current").then(res => {
         console.log(res);
-        if (res.data.code === 0) {
+        if (res.data && res.data.code === 0) {
           this.userArr = res.data.data;
           this.userArr.accountType = utils.accountType(this.userArr.type);
+          this.userArr.email = res.data.data.email || "暂无";
+          this.ruleForm.email = this.userArr.email;
+          this.ruleForm.phoneNum = res.data.data.phone;
+          this.ruleForm.userName = res.data.data.nickName;
         }
       });
     }

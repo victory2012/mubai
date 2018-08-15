@@ -20,14 +20,12 @@ export default {
   name: "Password",
   data() {
     return {
-      ruleForm: {
-        password: ""
-      },
+      ruleForm: {},
       rules: {
         password: [
           { required: true, message: "请输入密码", trigger: "blur" },
           {
-            min: 6,
+            min: 3,
             max: 16,
             message: "长度在 3 到 10 个字符",
             trigger: "change"
@@ -40,7 +38,19 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          console.log('success');
+          let userObj = {
+            password: this.ruleForm.password
+          };
+          this.$axios.put("user/info", userObj).then(res => {
+            console.log(res);
+            if (res.data && res.data.code === 0) {
+              this.$message({
+                type: "success",
+                message: "修改成功"
+              });
+              this.ruleForm = {};
+            }
+          });
         }
       });
     }

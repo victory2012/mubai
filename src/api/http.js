@@ -67,6 +67,7 @@ function checkCode(res) {
     Message.warning(res.msg);
     setTimeout(() => {
       window.location.href = '#/login';
+      sessionStorage.clear();
     }, 1000);
   }
   if (res.data && (!res.data.success)) {

@@ -31,9 +31,6 @@
             <el-input v-model="adminForm.companyName" auto-complete="off"></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
-          <p>{{typeId}}</p>
-        </el-col>
       </el-row>
     </el-form>
     <div>
@@ -74,7 +71,7 @@ export default {
         ],
         password: [
           { required: true, message: "请输入密码", trigger: "change" },
-          { min: 6, message: "密码至少6位", trigger: "change" }
+          { min: 3, message: "密码至少3位", trigger: "change" }
         ],
         phone: [
           { required: true, message: "请输入手机号码", trigger: "change" },
@@ -84,7 +81,7 @@ export default {
             trigger: "change"
           }
         ],
-        enterpriseName: [
+        companyName: [
           { required: true, message: "请输入企业名称", trigger: "change" }
         ],
         nature: [
@@ -112,33 +109,55 @@ export default {
     resetAdmin(formName) {
       this.$refs[formName].resetFields();
       this.adminForm = {};
-      // this.$store.commit("triggerManfictor");
     },
     submitAdmin(formName) {
       console.log(this.typeId);
       this.$refs[formName].validate(valid => {
         if (valid) {
-          let params = {
-            account: this.adminForm.account,
-            password: this.adminForm.password,
-            phone: this.adminForm.phone,
-            email: this.adminForm.email,
-            companyName: this.adminForm.companyName,
-            isCreator: 1
-          };
-          console.log(this.adminForm);
-          // console.log("yes");
-          this.$axios.post("/company/manufacturer", params).then(res => {
-            console.log(res);
-            if (res.data && res.data.code === 0) {
-              this.$message({
-                type: "success",
-                message: "创建成功"
-              });
-              this.$emit("hasCreated", { value: true });
-              this.closedIt();
-            }
-          });
+          if (this.typeId === "1") {
+            let params = {
+              account: this.adminForm.account,
+              password: this.adminForm.password,
+              phone: this.adminForm.phone,
+              email: this.adminForm.email,
+              companyName: this.adminForm.companyName,
+              isCreator: 1
+            };
+            this.$axios.post("/company/manufacturer", params).then(res => {
+              console.log(res);
+              if (res.data && res.data.code === 0) {
+                this.$message({
+                  type: "success",
+                  message: "创建成功"
+                });
+                this.$emit("hasCreated", { value: true });
+                this.$store.state.manfictor = false;
+                // this.resetAdmin('adminForm');
+              }
+            });
+          }
+          if (this.typeId === "2") {
+            let options = {
+              account: this.adminForm.account,
+              password: this.adminForm.password,
+              phone: this.adminForm.phone,
+              email: this.adminForm.email,
+              companyName: this.adminForm.companyName,
+              isCreator: 0
+            };
+            this.$axios.post("/company/purchaser", options).then(res => {
+              console.log(res);
+              if (res.data && res.data.code === 0) {
+                this.$message({
+                  type: "success",
+                  message: "创建成功"
+                });
+                this.$emit("hasCreated", { value: true });
+                this.$store.state.manfictor = false;
+                // this.resetAdmin('adminForm');
+              }
+            });
+          }
         } else {
           console.log("no");
           return false;
@@ -147,7 +166,8 @@ export default {
     },
     closedIt() {
       console.log("it closed");
-      this.$store.commit("triggerManfictor");
+      this.$store.state.manfictor = false;
+      this.resetAdmin('adminForm');
     }
   }
 };

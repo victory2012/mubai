@@ -25,13 +25,7 @@ new Vue({
   },
   template: '<App/>',
   created() {
-    if (sessionStorage.getItem('loginData') === null) {
-      sessionStorage.setItem('loginData', '');
-    }
-    if (sessionStorage.getItem('token') === null) {
-      sessionStorage.setItem('token', '');
-    }
-    this.$store.state.loginData = sessionStorage.getItem('loginData');
-    this.$store.state.token = sessionStorage.getItem('token');
+    this.$store.state.loginData = sessionStorage.getItem('loginData') || "";
+    this.$store.state.token = sessionStorage.getItem('token') || "";
   }
 });

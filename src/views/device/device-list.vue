@@ -20,13 +20,15 @@
           <p>批量导入</p> -->
         </div>
         <div class="items">
-          <img src="../../../static/img/device_recover.png" alt="">
-          <p>恢复拉黑设备</p>
+          <router-link to="/device/defriend">
+            <img src="../../../static/img/device_recover.png" alt="">
+            <p>恢复拉黑设备</p>
+          </router-link>
         </div>
       </div>
       <div class="select">
         <div class="item">
-          <el-input size="small" style="width:100%" v-model="content" placeholder="请输入内容"></el-input>
+          <el-input size="small" style="width:100%" v-model="content" placeholder="设备编号"></el-input>
         </div>
         <div class="item">
           <el-select size="small" style="width:100%" v-model="regState" placeholder="设备状态">
@@ -35,14 +37,14 @@
           </el-select>
         </div>
         <div class="item">
-          <el-select size="small" style="width:100%" v-model="bindState" placeholder="注册状态">
+          <el-select size="small" style="width:100%" v-model="bindState" placeholder="绑定状态">
             <el-option v-for="item in bindOptions" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
           </el-select>
         </div>
         <div class="item">
-          <el-button @click="getUserList" size="small" type="primary">确定</el-button>
-          <el-button size="small" plain>取消</el-button>
+          <el-button @click="getDeviceList" size="small" type="primary">确定</el-button>
+          <el-button @click="clearAll" size="small" plain>清空</el-button>
         </div>
       </div>
     </div>
@@ -55,7 +57,7 @@
         </el-table-column>
         <el-table-column prop="regstate" align="center" label="设备注册状态">
         </el-table-column>
-        <el-table-column prop="bindingName" align="center" label="电池绑定状态">
+        <el-table-column prop="bindState" align="center" label="电池绑定状态">
         </el-table-column>
         <el-table-column align="center" label="监测设备">
           <template slot-scope="scope">
@@ -64,15 +66,15 @@
             </el-button>
           </template>
         </el-table-column>
-        <el-table-column label="操作" align="center">
+        <el-table-column label="操作" align="center" width="160px">
           <template slot-scope="scope">
-            <el-button @click.native.prevent="addBlack(scope.$index, tableData)" type="text" :disabled="!tableData[scope.$index].status" size="small">
+            <el-button @click.native.prevent="addBlack(scope.row)" type="text" :disabled="scope.row.blackStatus" size="small">
               拉黑
             </el-button>
-            <el-button @click.native.prevent="deleteRow(scope.$index, tableData)" type="text" size="small">
+            <el-button @click.native.prevent="deleteRow(scope.row)" :disabled="scope.row.bindStatus" type="text" size="small">
               删除
             </el-button>
-            <el-button @click.native.prevent="uplevel(scope.$index, tableData)" type="text" :disabled="!tableData[scope.$index].bindingStatus" size="small">
+            <el-button @click.native.prevent="uplevel(scope.row)" type="text" size="small">
               设备升级
             </el-button>
           </template>
@@ -128,25 +130,8 @@ export default {
         company: [{ required: true, message: "请选择企业", trigger: "change" }]
       },
       companyArr: [],
-      tableData: [
-        {
-          deviceId: "1805B598C6E7",
-          manufacturerName: "测试企业001",
-          regstate: "已注册",
-          bindingName: "已绑定"
-        }
-      ],
+      tableData: [],
       stateOptions: [
-        {
-          value: "-1",
-          label: "拉黑"
-        },
-        {
-          value: "0",
-          label: "正常"
-        }
-      ],
-      bindOptions: [
         {
           value: "1",
           label: "已注册"
@@ -154,6 +139,16 @@ export default {
         {
           value: "0",
           label: "未注册"
+        }
+      ],
+      bindOptions: [
+        {
+          value: "1",
+          label: "已绑定"
+        },
+        {
+          value: "0",
+          label: "未绑定"
         }
       ]
     };
@@ -191,7 +186,7 @@ export default {
                 type: "success",
                 message: "设备注册成功"
               });
-              this.getUserList();
+              this.getDeviceList();
               this.regDevice = false;
             }
           });
@@ -202,15 +197,61 @@ export default {
       });
     },
     /* 改变每页显示的数量 */
-    handleSizeChange() {},
+    handleSizeChange(val) {
+      this.pageSize = val;
+      this.getDeviceList();
+    },
     /* 改变当前页 */
-    handleCurrentChange() {},
+    handleCurrentChange(val) {
+      this.currentPage = val;
+      this.getDeviceList();
+    },
     /* 查看 */
-    MonitorDevice() {},
+    MonitorDevice(data) {
+      console.log(data);
+    },
     /* 添加黑名单 */
-    addBlack() {},
+    addBlack(data) {
+      console.log(data);
+      // if (data.)
+      let deviceObj = {
+        id: data.id,
+        status: -1
+      };
+      this.$axios.put("device", deviceObj).then(res => {
+        console.log(res);
+        if (res.data && res.data.code === 0) {
+          this.$message({
+            type: "success",
+            message: res.data.msg
+          });
+          this.getDeviceList();
+        }
+      });
+    },
     /* 删除设备 */
-    deleteRow() {},
+    deleteRow(data) {
+      console.log(data);
+      this.$alert("确定删除此设备吗？", {
+        showCancelButton: true,
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        callback: action => {
+          if (action === "confirm") {
+            this.$axios.delete(`/device/${data.id}`).then(res => {
+              console.log(res);
+              if (res.data && res.data.code === 0) {
+                this.$message({
+                  message: "删除成功",
+                  type: "success"
+                });
+                this.getDeviceList();
+              }
+            });
+          }
+        }
+      });
+    },
     /* 设备升级 */
     uplevel() {},
     flieError() {
@@ -256,24 +297,35 @@ export default {
         }
       });
     },
+    /* 清空 */
+    clearAll() {
+      this.regState = "";
+      this.bindState = "";
+      this.content = "";
+      this.getDeviceList();
+    },
     /* 获取设备列表 */
-    getUserList() {
+    getDeviceList() {
       let pageObj = {
         pageSize: this.pageSize,
         pageNum: this.currentPage,
-        status: this.regState,
-        bindStatus: this.bindState
+        registerStatus: this.regState,
+        code: this.content,
+        status: 0,
+        bindingStatus: this.bindState
       };
       this.$axios.get("/device", pageObj).then(res => {
         console.log(res);
-        if (res.data.code === 0) {
+        if (res.data && res.data.code === 0) {
           let result = res.data.data;
           this.total = result.total;
           this.tableData = [];
           if (result.pageData.length > 0) {
             result.pageData.forEach(key => {
               key.online = key.onlineStatus === 0;
-              key.regstate = key.registerStatus === 0 ? "未绑定" : "已绑定";
+              key.blackStatus = key.status === -1;
+              key.bindStatus = key.hostId === null;
+              key.bindState = key.hostId === null ? "未绑定" : "已绑定";
               this.tableData.push(key);
             });
           }
@@ -282,7 +334,7 @@ export default {
     }
   },
   mounted() {
-    this.getUserList();
+    this.getDeviceList();
   }
 };
 </script>
@@ -302,6 +354,9 @@ export default {
         text-align: center;
         font-size: 14px;
         cursor: pointer;
+        a {
+          color: #484848;
+        }
         img {
           margin-bottom: 8px;
         }

@@ -4,7 +4,7 @@
       <div class="icons">
         <div class="items">
           <img src="../../../static/img/device_reg.png" alt="">
-          <p>设备注册</p>
+          <p>电池注册</p>
         </div>
         <div class="items">
           <el-upload class="upload-demo" ref="upload" action="https://jsonplaceholder.typicode.com/posts/" :on-success="flieSuccess" :on-progress="onGoing" :on-error="flieError" :show-file-list="false" :multiple="false" :auto-upload="true">

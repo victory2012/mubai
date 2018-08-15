@@ -21,18 +21,10 @@
       </el-table-column>
       <el-table-column align="center" label="操作" width="150">
         <template slot-scope="scope">
-          <el-button class="limite" @click.native.prevent="changeQuanxian(scope.row)" type="text">
+          <el-button size="small" class="limite" @click.native.prevent="changeQuanxian(scope.row)" type="text">
             修改权限
           </el-button>
-          <el-button type="text" @click="secondary(scope.row)">删除</el-button>
-          <!-- <el-popover placement="top" width="160" v-model="secondary">
-            <p>确定删除此用户吗？</p>
-            <div style="text-align: right; margin: 0">
-              <el-button size="mini" type="text" @click="secondary=false">取消</el-button>
-              <el-button type="primary" size="mini" @click="doDelete(scope.row)">确定</el-button>
-            </div>
-            <el-button type="text" slot="reference">删除</el-button>
-          </el-popover> -->
+          <el-button size="small" type="text" @click="secondary(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -153,6 +145,8 @@ export default {
     };
   },
   mounted() {
+    this.$store.state.manfictor = false;
+    this.$store.state.custom = false;
     this.userData = addData();
     this.getUserList();
   },
@@ -188,15 +182,21 @@ export default {
       this.userId = item.id;
       this.$axios.get(`/user/permissions/${item.id}`).then(res => {
         console.log(res);
-        if (res.data.code === 0) {
-          let permis = JSON.parse(res.data.data);
-          let keys = Object.keys(permis);
-          let values = Object.values(permis);
-          this.userRole.forEach((key, index) => {
-            if (key.id === keys[index]) {
-              key.value = values[index];
-            }
-          });
+        if (res.data && res.data.code === 0) {
+          if (res.data.data !== null) {
+            let permis = JSON.parse(res.data.data);
+            let keys = Object.keys(permis);
+            let values = Object.values(permis);
+            this.userRole.forEach((key, index) => {
+              if (key.id === keys[index]) {
+                key.value = values[index];
+              }
+            });
+          } else {
+            this.userRole.forEach(key => {
+              key.value = false;
+            });
+          }
           this.jurisdiction = !this.jurisdiction;
         }
       });
@@ -213,7 +213,7 @@ export default {
       };
       this.$axios.put("/user/permissions", roleObj).then(res => {
         console.log(res);
-        if (res.data.code === 0) {
+        if (res.data && res.data.code === 0) {
           this.$message({
             message: res.data.msg,
             type: "success"
@@ -228,7 +228,7 @@ export default {
       this.secondary = false;
       this.$axios.delete(`/user/${item.id}`).then(res => {
         console.log(res);
-        if (res.data.code === 0) {
+        if (res.data && res.data.code === 0) {
           this.$message({
             message: "删除成功",
             type: "success"
@@ -270,7 +270,7 @@ export default {
       this.$axios.get("/user", pageObj).then(res => {
         console.log(res);
         let result = res.data;
-        if (result.code === 0) {
+        if (result && result.code === 0) {
           this.tableData = [];
           this.total = result.data.total;
           // this.currentPage = result.data.totalPage;

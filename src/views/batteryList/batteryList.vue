@@ -2,7 +2,7 @@
   <div class="batteryList">
     <div class="topTab">
       <div class="icons">
-        <div class="items">
+        <div class="items" @click="triggerAddBattery">
           <img src="../../../static/img/device_reg.png" alt="">
           <p>电池注册</p>
         </div>
@@ -13,15 +13,11 @@
               <img src="../../../static/img/device_import.png" alt="">
               <p>批量导入</p>
             </div>
-            <!-- <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button> -->
-            <!-- <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div> -->
           </el-upload>
-          <!-- <img src="../../../static/img/device_import.png" alt="">
-          <p>批量导入</p> -->
         </div>
         <div class="items">
           <img src="../../../static/img/device_recover.png" alt="">
-          <p>恢复拉黑设备</p>
+          <p>恢复拉黑电池</p>
         </div>
       </div>
       <div class="select">
@@ -87,9 +83,10 @@
       </el-table>
     </div>
     <div class="page">
-      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="currentPage" :page-sizes="[100, 200, 300, 400]" :page-size="100" layout="sizes, prev, pager, next" :total="1000">
+      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="currentPage" :page-sizes="[10, 20, 30, 50]" :page-size="pageSize" layout="sizes, prev, pager, next" :total="total">
       </el-pagination>
     </div>
+    <add-battery :is="showAdd"></add-battery>
   </div>
 </template>
 <style lang="scss" scoped>
@@ -109,6 +106,7 @@
         float: left;
         text-align: center;
         font-size: 14px;
+        cursor: pointer;
         img {
           margin-bottom: 8px;
         }
@@ -130,12 +128,26 @@
 }
 </style>
 <script>
+const asyncCompa = () => ({
+  component: import("@/components/battery/addBattery"),
+  delay: 3000, // 这个延时并不能让loading显示更长时间
+  timeout: 10000
+});
+
 export default {
+  components: {
+    "add-battery": asyncCompa
+  },
   data() {
     return {
+      showAdd: '',
       batteryId: "",
       loading: false,
-      currentPage: 2,
+      currentPage: 1,
+      pageSize: 10,
+      total: 0,
+      batteryForm: {},
+      batteryFormRules: {},
       options: [
         {
           value: "选项1",
@@ -173,20 +185,43 @@ export default {
     };
   },
   methods: {
-    handleSizeChange() {},
-    handleCurrentChange() {},
+    triggerAddBattery() {
+      this.$store.commit("triggerAddBattery");
+      this.showAdd = "add-battery";
+    },
+    handleSizeChange(val) {
+      this.pageSize = val;
+      this.getBatteryList();
+    },
+    handleCurrentChange(val) {
+      this.currentPage = val;
+      this.getBatteryList();
+    },
     handleClick(row) {
       console.log(row);
     },
     flieError() {
-      console.log('上传失败');
+      console.log("上传失败");
     },
     onGoing() {
-      console.log('上传中');
+      console.log("上传中");
     },
     flieSuccess() {
-      console.log('成功');
+      console.log("成功");
+    },
+    getBatteryList() {
+      let options = {
+        pageSize: this.pageSize,
+        pageNum: this.currentPage
+      };
+      this.$axios.get("/battery_gps", options).then(res => {
+        console.log(res);
+      });
     }
+  },
+  mounted() {
+    this.$store.state.addBattery = false;
+    // this.getBatteryList();
   }
 };
 </script>

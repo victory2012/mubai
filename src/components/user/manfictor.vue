@@ -4,31 +4,31 @@
       <el-row :gutter="40">
         <el-col :span="12">
           <el-form-item label="用户名" prop="account">
-            <el-input v-model="adminForm.account" auto-complete="off"></el-input>
+            <el-input size="small" v-model="adminForm.account" auto-complete="off"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="登陆密码" prop="password">
-            <el-input v-model="adminForm.password" type="password" auto-complete="off"></el-input>
+            <el-input size="small" v-model="adminForm.password" type="password" auto-complete="off"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row :gutter="40">
         <el-col :span="12">
           <el-form-item label="手机号码" prop="phone">
-            <el-input v-model="adminForm.phone" auto-complete="off"></el-input>
+            <el-input size="small" v-model="adminForm.phone" auto-complete="off"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="邮箱（选填）" prop="email">
-            <el-input v-model="adminForm.email" auto-complete="off"></el-input>
+            <el-input size="small" v-model="adminForm.email" auto-complete="off"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row :gutter="40">
         <el-col :span="12">
           <el-form-item label="企业名称" prop="companyName">
-            <el-input v-model="adminForm.companyName" auto-complete="off"></el-input>
+            <el-input size="small" v-model="adminForm.companyName" auto-complete="off"></el-input>
           </el-form-item>
         </el-col>
       </el-row>

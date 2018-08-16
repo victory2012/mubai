@@ -26,4 +26,8 @@ export default {
   triggerCustom(state) {
     state.custom = !state.custom;
   },
+  /* 控制创建公司的组件显示 */
+  triggerAddBattery(state) {
+    state.addBattery = !state.addBattery;
+  },
 };

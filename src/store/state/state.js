@@ -3,5 +3,6 @@ export default {
   token: null, // 用户的token
   mapData: '',
   manfictor: false,
-  custom: false
+  custom: false,
+  addBattery: false
 };
